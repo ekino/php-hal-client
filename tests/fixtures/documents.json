@@ -1,0 +1,29 @@
+{
+    "page": 1,
+    "limit": 10,
+    "pages": 1,
+    "_links": {
+        "curies": [
+            {
+                "href": "http:\/\/propilex.herokuapp.com\/rels\/{rel}",
+                "name": "p",
+                "templated": true
+            }
+        ],
+        "p:documents": {
+            "href": "http:\/\/propilex.herokuapp.com\/documents"
+        },
+        "self": {
+            "href": "http:\/\/propilex.herokuapp.com\/documents?page=1&limit=10"
+        },
+        "first": {
+            "href": "http:\/\/propilex.herokuapp.com\/documents?page=1&limit=10"
+        },
+        "last": {
+            "href": "http:\/\/propilex.herokuapp.com\/documents?page=1&limit=10"
+        }
+    },
+    "_embedded": {
+        "documents": []
+    }
+}
