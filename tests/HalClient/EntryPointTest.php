@@ -23,7 +23,7 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
     public function testInvalidContentType()
     {
         $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
-        $client->expects($this->once())->method('get')->will($this->returnValue(new HttpResponse(array(
+        $client->expects($this->once())->method('get')->will($this->returnValue(new HttpResponse(200, array(
             'Content-Type' => 'application/json'
         )), '{}'));
 
@@ -38,13 +38,13 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
         $client->expects($this->any())->method('get')->will($this->returnCallback(function($url) {
 
             if ($url == 'http://propilex.herokuapp.com') {
-                return new HttpResponse(array(
+                return new HttpResponse(200, array(
                         'Content-Type' => 'application/hal+json'
                 ), file_get_contents(__DIR__.'/../fixtures/entry_point.json'));
             }
 
             if ($url == 'http://propilex.herokuapp.com/documents') {
-                return new HttpResponse(array(
+                return new HttpResponse(200, array(
                         'Content-Type' => 'application/hal+json'
                 ), file_get_contents(__DIR__.'/../fixtures/documents.json'));
 

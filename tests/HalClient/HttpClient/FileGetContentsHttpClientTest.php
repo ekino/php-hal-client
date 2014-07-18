@@ -22,6 +22,7 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Ekino\HalClient\HttpClient\HttpResponse', $response);
 
+        $this->assertEquals(200, $response->getStatus());
         $this->assertNotNull($response->getHeader('Content-Type'));
 
         $this->assertContains('ekino', $response->getBody());

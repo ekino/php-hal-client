@@ -119,6 +119,8 @@ class Resource
 
     /**
      * @param $name
+     *
+     * @return boolean
      */
     protected function buildResourceValue($name)
     {
@@ -132,6 +134,10 @@ class Resource
 
         if (!$response instanceof HttpResponse) {
             throw new \RuntimeException(sprintf('HttpClient does not return a valid HttpResponse object, given: %s', $response));
+        }
+
+        if ($response->getStatus() !== 200) {
+            throw new \RuntimeException(sprintf('HttpClient does not return a status code, given: %s', $response->getStatus()));
         }
 
         $this->embedded[$name] = EntryPoint::parse($response, $this->client);

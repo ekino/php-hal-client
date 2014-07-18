@@ -18,10 +18,10 @@ class FileGetContentsHttpClient implements HttpClientInterface
     protected $timeout;
 
     /**
-     * @param array   $defaultHeaders
-     * @param integer $timeout
+     * @param array $defaultHeaders
+     * @param float $timeout
      */
-    public function __construct(array $defaultHeaders = array(), $timeout = 1)
+    public function __construct(array $defaultHeaders = array(), $timeout = 1.0)
     {
         $this->defaultHeaders = $defaultHeaders;
         $this->timeout = $timeout;
@@ -43,14 +43,25 @@ class FileGetContentsHttpClient implements HttpClientInterface
             'http' => array(
                 'method'  => strtoupper($method),
                 'header'  => $this->buildHeaders(array_merge($this->defaultHeaders, $headers)),
-                'timeout' => $this->timeout
+                'timeout' => $this->timeout,
+
+                // need to set configuration options
+                'user_agent'      => 'Ekino HalClient v0.1',
+                'follow_location' => 0,
+                'max_redirects'   => 20,
             )
         );
 
         // http://php.net/manual/en/reserved.variables.httpresponseheader.php
         $content = file_get_contents($url, false, stream_context_create($opts));
 
-        return new HttpResponse($this->parseHeaders($http_response_header), $content);
+        if (count($http_response_header) < 1) {
+            throw new \RuntimeException('Empty response, no headers');
+        }
+
+        $data = explode(" ", $http_response_header[0]);
+
+        return new HttpResponse($data[1], $this->parseHeaders($http_response_header), $content);
     }
 
     /**

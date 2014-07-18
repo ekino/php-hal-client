@@ -17,14 +17,26 @@ class HttpResponse
 
     protected $body;
 
+    protected $status;
+
     /**
-     * @param array  $headers
-     * @param string $body
+     * @param integer $status
+     * @param array   $headers
+     * @param string  $body
      */
-    public function __construct(array $headers, $body = '')
+    public function __construct($status, array $headers = array(), $body = '')
     {
+        $this->status  = $status;
         $this->headers = $headers;
-        $this->body = $body;
+        $this->body    = $body;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**
