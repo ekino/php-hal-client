@@ -146,7 +146,7 @@ class Resource
      */
     protected function getEmbeddedValue($name)
     {
-        if (!$this->embedded[$name] instanceof self) {
+        if ( !is_object($this->embedded[$name])) {
             if (is_integer(key($this->embedded[$name])) || empty($this->embedded[$name])) {
                 $this->embedded[$name] = new ResourceCollection($this->client, $this->embedded[$name]);
             } else {

@@ -73,6 +73,21 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(10, $resource->get('limit'));
         $this->assertEquals(1, $resource->get('pages'));
 
-        $this->assertInstanceOf('Ekino\HalClient\ResourceCollection', $resource->get('documents'));
+        $collection = $resource->get('documents');
+
+        $this->assertInstanceOf('Ekino\HalClient\ResourceCollection', $collection);
+
+        $this->assertEquals(4, $collection->count());
+
+        foreach ($collection as $child) {
+            $this->assertInstanceOf('Ekino\HalClient\Resource', $child);
+            $this->assertNotNull($child->get('title'));
+            $this->assertNotNull($child->get('body'));
+            $this->assertNotNull($child->get('id'));
+            $this->assertNull($child->get('fake'));
+        }
+
+
+        $this->assertEquals('teste', $collection[1]->get('title'));
     }
 }
