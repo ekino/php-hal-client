@@ -47,8 +47,24 @@ foreach ($collection as $document) {
     $document->get('title');
 }
 
-
-
-
 ```
 
+
+### Integrate JMS/Deserializer
+
+The library support deserialization of Resource object into native PHP object.
+
+```php
+
+$serializerBuilder = SerializerBuilder::create();
+$serializerBuilder->setDeserializationVisitor('hal', new ResourceDeserializationVisitor(new CamelCaseNamingStrategy()));
+$serializerBuilder->configureHandlers(function($handlerRegistry) {
+    $handlerRegistry->registerSubscribingHandler(new DateHandler());
+    $handlerRegistry->registerSubscribingHandler(new ArrayCollectionHandler());
+});
+
+$serializer = $serializerBuilder->build();
+
+$object = $serializer->deserialize($resource, 'Ekino\HalClient\Article', 'hal');
+
+```

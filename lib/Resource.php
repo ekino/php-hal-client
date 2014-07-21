@@ -14,7 +14,7 @@ namespace Ekino\HalClient;
 use Ekino\HalClient\HttpClient\HttpClientInterface;
 use Ekino\HalClient\HttpClient\HttpResponse;
 
-class Resource
+class Resource implements \ArrayAccess
 {
     protected $properties;
 
@@ -213,5 +213,37 @@ class Resource
         }
 
         return EntryPoint::parse($response, $this->client);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
+    {
+       return isset($this->properties[$offset]) || isset($this->links[$offset]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        throw new \RuntimeException('Operation not available');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        throw new \RuntimeException('Operation not available');
     }
 }
