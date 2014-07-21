@@ -14,6 +14,7 @@ namespace Ekino\HalClient\Deserialization;
 use Ekino\HalClient\Deserialization\Handler\ArrayCollectionHandler;
 use Ekino\HalClient\Deserialization\Handler\DateHandler;
 use Ekino\HalClient\Deserialization\ResourceDeserializationVisitor;
+use Ekino\HalClient\HttpClient\HttpResponse;
 use Ekino\HalClient\Resource;
 use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use JMS\Serializer\SerializerBuilder;
@@ -23,15 +24,25 @@ use JMS\Serializer\Annotation as Serializer;
 
 class DeserializationTest extends \PHPUnit_Framework_TestCase
 {
-
     public function testMapping()
     {
         $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
+        $client->expects($this->once())->method('get')->will($this->returnCallback(function($url) {
+            if ($url == '/users/1') {
+                return new HttpResponse(200, array(
+                    'Content-Type' => 'application/hal+json'
+                ), json_encode(array(
+                    'name' => 'Thomas Rabaix',
+                    'email' => 'thomas.rabaix@ekino.com'
+                )));
+            }
+        }));
 
         $resource = new Resource($client, array(
             'name' => 'Salut',
         ), array(
-            'fragments' => array('href' => '/document/1/fragments')
+            'fragments' => array('href' => '/document/1/fragments'),
+            'author' => array('href' => '/users/1')
         ), array(
             'fragments' => array(
                 array(
@@ -66,6 +77,13 @@ class DeserializationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $fragments);
         $this->assertEquals($fragments[0]->getType(), 'test');
         $this->assertEquals($fragments[1]->getType(), 'image');
+        $this->assertNotNull($object->getAuthor());
+        $this->assertEquals($object->getAuthor()->getEmail(), 'thomas.rabaix@ekino.com');
+    }
+
+    public function testProxy()
+    {
+
     }
 }
 
@@ -84,6 +102,29 @@ class Article
      * @var array
      */
     protected $fragments;
+
+    /**
+     * @param array $author
+     */
+    public function setAuthor(Author $author)
+    {
+        $this->author = $author;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    /**
+     * @Serializer\Type("Ekino\HalClient\Deserialization\Author")
+     *
+     * @var array
+     */
+    protected $author;
 
     /**
      * @param array $fragments
@@ -164,5 +205,54 @@ class Fragment
     public function getType()
     {
         return $this->type;
+    }
+}
+
+class Author
+{
+    /**
+     * @Serializer\Type("string")
+     *
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @Serializer\Type("string")
+     *
+     * @var string
+     */
+    protected $email;
+
+    /**
+     * @param string $email
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }
