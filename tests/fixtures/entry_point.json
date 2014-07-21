@@ -1,4 +1,5 @@
 {
+  "field": "value",
   "_links": {
     "self": {
       "href": "http://propilex.herokuapp.com/",

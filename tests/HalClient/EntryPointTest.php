@@ -56,7 +56,7 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
         $resource = $entryPoint->get();
 
         $this->assertInstanceOf('Ekino\HalClient\Resource', $resource);
-        $this->assertEmpty($resource->getProperties());
+        $this->assertCount(1, $resource->getProperties());
         $this->assertEmpty($resource->getEmbedded());
 
         $link = $resource->getLink('p:documents');

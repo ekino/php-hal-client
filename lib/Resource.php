@@ -59,6 +59,28 @@ class Resource
     }
 
     /**
+     * Reloads the Resource by using the self reference
+     *
+     * @throws \RuntimeException
+     */
+    public function refresh()
+    {
+        $link = $this->getLink('self');
+
+        if (!$link) {
+            throw new \RuntimeException('Invalid resource, not `self` reference available');
+        }
+
+        $r = $this->getResource($link);
+
+        $this->properties = $r->getProperties();
+        $this->links      = $r->getLinks();
+        $this->embedded   = $r->getEmbedded();
+
+        $this->parseCuries();
+    }
+
+    /**
      * @param $name
      *
      * @return Link
@@ -130,17 +152,7 @@ class Resource
             return false;
         }
 
-        $response = $this->client->get($link->getHref());
-
-        if (!$response instanceof HttpResponse) {
-            throw new \RuntimeException(sprintf('HttpClient does not return a valid HttpResponse object, given: %s', $response));
-        }
-
-        if ($response->getStatus() !== 200) {
-            throw new \RuntimeException(sprintf('HttpClient does not return a status code, given: %s', $response->getStatus()));
-        }
-
-        $this->embedded[$name] = EntryPoint::parse($response, $this->client);
+        $this->embedded[$name] = $this->getResource($link);
 
         return true;
     }
@@ -180,5 +192,26 @@ class Resource
         );
 
         return new self($client, $data, $links, $embedded);
+    }
+
+    /**
+     * @param Link $link
+     *
+     * @return Resource
+     * @throws \RuntimeException
+     */
+    private function getResource(Link $link)
+    {
+        $response = $this->client->get($link->getHref());
+
+        if (!$response instanceof HttpResponse) {
+            throw new \RuntimeException(sprintf('HttpClient does not return a valid HttpResponse object, given: %s', $response));
+        }
+
+        if ($response->getStatus() !== 200) {
+            throw new \RuntimeException(sprintf('HttpClient does not return a status code, given: %s', $response->getStatus()));
+        }
+
+        return EntryPoint::parse($response, $this->client);
     }
 }
