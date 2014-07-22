@@ -43,6 +43,14 @@ class Resource implements \ArrayAccess
     }
 
     /**
+     * @return HttpClientInterface
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
      * @return array
      */
     public function getEmbedded()
@@ -92,10 +100,24 @@ class Resource implements \ArrayAccess
         }
 
         if (!$this->links[$name] instanceof Link) {
-            $this->links[$name] = new Link($this->links[$name]);
+            $this->links[$name] = new Link($this, array_merge(array('name' => $name), $this->links[$name]));
         }
 
         return $this->links[$name];
+    }
+
+    /**
+     * @param $name
+     *
+     * @return Link
+     */
+    public function getCurie($name)
+    {
+        if (!array_key_exists($name, $this->curies)) {
+            return null;
+        }
+
+        return $this->curies[$name];
     }
 
     /**
@@ -115,7 +137,7 @@ class Resource implements \ArrayAccess
         }
 
         foreach ($this->links['curies'] as $curie) {
-            $this->curies[$curie['name']] = $curie;
+            $this->curies[$curie['name']] = new Link($this, $curie);
         }
     }
 
