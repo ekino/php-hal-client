@@ -43,8 +43,10 @@ class EntryPoint
      * @param HttpClientInterface $client
      *
      * @return Resource
+     *
+     * @throws \RuntimeException
      */
-    static function parse(HttpResponse $response, HttpClientInterface $client)
+    public static function parse(HttpResponse $response, HttpClientInterface $client)
     {
         if ($response->getHeader('Content-Type') !== 'application/hal+json') {
             throw new \RuntimeException('Invalid content type');
@@ -55,15 +57,6 @@ class EntryPoint
         return Resource::create($client, $data);
     }
 
-    protected function initialize()
-    {
-        if ($this->resource) {
-            return;
-        }
-
-        $this->resource = static::parse($this->client->get($this->url), $this->client);
-    }
-
     /**
      * @return Resource
      */
@@ -72,5 +65,17 @@ class EntryPoint
         $this->initialize();
 
         return $this->resource;
+    }
+
+    /**
+     * Initialize the resource.
+     */
+    protected function initialize()
+    {
+        if ($this->resource) {
+            return;
+        }
+
+        $this->resource = static::parse($this->client->get($this->url), $this->client);
     }
 }

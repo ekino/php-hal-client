@@ -26,12 +26,12 @@ Please provide a version constraint for the ekino/hal-client requirement: dev-ma
 <?php
 
 // create a HttpClient to perform http request
-$client = new FileGetContentsHttpClient(array(
+$client = new FileGetContentsHttpClient('http://propilex.herokuapp.com', array(
     'Authorization' => 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
 ));
 
 // create an entry point to retrieve the data
-$entryPoint = new EntryPoint('http://propilex.herokuapp.com', $client);
+$entryPoint = new EntryPoint('/', $client);
 $resource = $entryPoint->get(); // return the main resource
 
 // retrieve a Resource object, which acts as a Pager

@@ -13,18 +13,39 @@ namespace Ekino\HalClient\HttpClient;
 
 class FileGetContentsHttpClient implements HttpClientInterface
 {
+    /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
+     * @var array
+     */
     protected $defaultHeaders;
 
+    /**
+     * @var float
+     */
     protected $timeout;
 
     /**
-     * @param array $defaultHeaders
-     * @param float $timeout
+     * Constructor.
+     *
+     * @param string $baseUrl
+     * @param array  $defaultHeaders
+     * @param float  $timeout
      */
-    public function __construct(array $defaultHeaders = array(), $timeout = 1.0)
+    public function __construct($baseUrl, array $defaultHeaders = array(), $timeout = 1.0)
     {
         $this->defaultHeaders = $defaultHeaders;
         $this->timeout = $timeout;
+
+        // normalize
+        if (substr($baseUrl, -1) !== '/') {
+            $baseUrl .= '/';
+        }
+
+        $this->baseUrl = $baseUrl;
     }
 
     /**
@@ -34,6 +55,8 @@ class FileGetContentsHttpClient implements HttpClientInterface
      * @param array  $data
      *
      * @return HttpResponse
+     *
+     * @throws \RuntimeException
      */
     protected function doRequest($url, $method, array $headers, array $data)
     {
@@ -52,10 +75,20 @@ class FileGetContentsHttpClient implements HttpClientInterface
             )
         );
 
+        // if is relative url
+        if ('http' !== substr($url, 0, 4)) {
+            // clean
+            if ($url[0] === '/') {
+                $url = substr($url, 1);
+            }
+
+            $url = $this->baseUrl . $url;
+        }
+
         // http://php.net/manual/en/reserved.variables.httpresponseheader.php
         $content = file_get_contents($url, false, stream_context_create($opts));
 
-        if (count($http_response_header) < 1) {
+        if (empty($http_response_header)) {
             throw new \RuntimeException('Empty response, no headers');
         }
 
@@ -73,7 +106,7 @@ class FileGetContentsHttpClient implements HttpClientInterface
     {
         $data = "";
         foreach ($headers as $name => $value) {
-            $data .= sprintf("%s :%s\r\n", $name, $value);
+            $data .= sprintf("%s: %s\r\n", $name, $value);
         }
 
         return $data;
