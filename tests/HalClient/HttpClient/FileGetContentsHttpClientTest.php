@@ -18,7 +18,9 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $client = new FileGetContentsHttpClient();
-        $response = $client->get("http://www.ekino.com");
+        $client->setBaseUrl('http://www.ekino.com');
+
+        $response = $client->get('/');
 
         $this->assertInstanceOf('Ekino\HalClient\HttpClient\HttpResponse', $response);
 

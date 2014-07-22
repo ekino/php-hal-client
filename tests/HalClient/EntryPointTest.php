@@ -27,7 +27,7 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
             'Content-Type' => 'application/json'
         )), '{}'));
 
-        $entryPoint = new EntryPoint('http://propilex.herokuapp.com', $client);
+        $entryPoint = new EntryPoint('/', $client);
 
         $entryPoint->get();
     }
@@ -37,21 +37,20 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
         $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
         $client->expects($this->any())->method('get')->will($this->returnCallback(function($url) {
 
-            if ($url == 'http://propilex.herokuapp.com') {
+            if ($url === '/') {
                 return new HttpResponse(200, array(
                         'Content-Type' => 'application/hal+json'
                 ), file_get_contents(__DIR__.'/../fixtures/entry_point.json'));
             }
 
-            if ($url == 'http://propilex.herokuapp.com/documents') {
+            if ($url === 'http://propilex.herokuapp.com/documents') {
                 return new HttpResponse(200, array(
                         'Content-Type' => 'application/hal+json'
                 ), file_get_contents(__DIR__.'/../fixtures/documents.json'));
-
             }
         }));
 
-        $entryPoint = new EntryPoint('http://propilex.herokuapp.com', $client);
+        $entryPoint = new EntryPoint('/', $client);
 
         $resource = $entryPoint->get();
 
