@@ -19,6 +19,7 @@ use JMS\Serializer\Exception\RuntimeException;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Metadata\PropertyMetadata;
 use JMS\Serializer\Metadata\ClassMetadata;
+use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
 
 class ResourceDeserializationVisitor extends AbstractVisitor
 {
@@ -26,6 +27,20 @@ class ResourceDeserializationVisitor extends AbstractVisitor
     private $result;
     private $objectStack;
     private $currentObject;
+
+    protected $namingStrategy;
+
+    protected $autoload;
+
+    /**
+     * @param PropertyNamingStrategyInterface $namingStrategy
+     * @param bool                            $autoload This will automatically fetch external resources
+     */
+    public function __construct(PropertyNamingStrategyInterface $namingStrategy, $autoload = true)
+    {
+        $this->namingStrategy = $namingStrategy;
+        $this->autoload       = $autoload;
+    }
 
     /**
      * {@inheritdoc}
@@ -46,11 +61,15 @@ class ResourceDeserializationVisitor extends AbstractVisitor
     {
         $name = $this->namingStrategy->translateName($metadata);
 
+        if ($data instanceof Resource && !$data->hasEmbedded($name) && $data->hasLink($name) && !$data->hasProperty($name) && !$this->autoload) {
+            return;
+        }
+
         if (isset($data[$name]) === false) {
             return;
         }
 
-        if ( ! $metadata->type) {
+        if (!$metadata->type) {
             throw new RuntimeException(sprintf('You must define a type for %s::$%s.', $metadata->reflection->class, $metadata->name));
         }
 
@@ -65,6 +84,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         $this->getCurrentObject()->{$metadata->setter}($v);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setNavigator(GraphNavigator $navigator)
     {
         $this->navigator = $navigator;
@@ -72,21 +94,33 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         $this->objectStack = new \SplStack;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getNavigator()
     {
         return $this->navigator;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function prepare($data)
     {
         return $this->decode($data);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function visitNull($data, array $type, Context $context)
     {
         return null;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function visitString($data, array $type, Context $context)
     {
         $data = (string) $data;
@@ -98,6 +132,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         return $data;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function visitBoolean($data, array $type, Context $context)
     {
         $data = (Boolean) $data;
@@ -109,6 +146,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         return $data;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function visitInteger($data, array $type, Context $context)
     {
         $data = (integer) $data;
@@ -120,6 +160,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         return $data;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function visitDouble($data, array $type, Context $context)
     {
         $data = (double) $data;
@@ -131,6 +174,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         return $data;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function visitArray($data, array $type, Context $context)
     {
         if ( ! $data instanceof ResourceCollection && !is_array($data) ) {
@@ -180,6 +226,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function startVisitingObject(ClassMetadata $metadata, $object, array $type, Context $context)
     {
         $this->setCurrentObject($object);
@@ -189,6 +238,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function endVisitingObject(ClassMetadata $metadata, $data, array $type, Context $context)
     {
         $obj = $this->currentObject;
@@ -197,6 +249,9 @@ class ResourceDeserializationVisitor extends AbstractVisitor
         return $obj;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getResult()
     {
         return $this->result;
@@ -217,5 +272,4 @@ class ResourceDeserializationVisitor extends AbstractVisitor
     {
         return $this->currentObject = $this->objectStack->pop();
     }
-
 }

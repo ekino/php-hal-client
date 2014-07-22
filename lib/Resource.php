@@ -142,6 +142,46 @@ class Resource implements \ArrayAccess
     /**
      * @param $name
      *
+     * @return bool
+     */
+    public function has($name)
+    {
+        return $this->hasProperty($name) || $this->hasLink($name);
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasLink($name)
+    {
+        return isset($this->links[$name]);
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasProperty($name)
+    {
+        return isset($this->properties[$name]);
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasEmbedded($name)
+    {
+        return isset($this->embedded[$name]);
+    }
+
+    /**
+     * @param $name
+     *
      * @return boolean
      */
     protected function buildResourceValue($name)
@@ -220,7 +260,7 @@ class Resource implements \ArrayAccess
      */
     public function offsetExists($offset)
     {
-       return isset($this->properties[$offset]) || isset($this->links[$offset]);
+       return $this->has($offset);
     }
 
     /**
