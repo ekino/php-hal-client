@@ -14,6 +14,11 @@ namespace Ekino\HalClient\HttpClient;
 class FileGetContentsHttpClient implements HttpClientInterface
 {
     /**
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
      * @var array
      */
     protected $defaultHeaders;
@@ -24,32 +29,17 @@ class FileGetContentsHttpClient implements HttpClientInterface
     protected $timeout;
 
     /**
-     * @var string
-     */
-    protected $baseUrl;
-
-    /**
      * Constructor.
      *
+     * @param string $baseUrl
      * @param array  $defaultHeaders
      * @param float  $timeout
-     * @param string $baseUrl        (Optional)
      */
-    public function __construct(array $defaultHeaders = array(), $timeout = 1.0, $baseUrl = null)
+    public function __construct($baseUrl, array $defaultHeaders = array(), $timeout = 1.0)
     {
         $this->defaultHeaders = $defaultHeaders;
         $this->timeout = $timeout;
 
-        if (null !== $baseUrl) {
-            $this->setBaseUrl($baseUrl);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setBaseUrl($baseUrl)
-    {
         // normalize
         if (substr($baseUrl, -1) !== '/') {
             $baseUrl .= '/';

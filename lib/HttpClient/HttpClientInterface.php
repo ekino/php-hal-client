@@ -14,11 +14,6 @@ namespace Ekino\HalClient\HttpClient;
 interface HttpClientInterface
 {
     /**
-     * @param string $baseUrl
-     */
-    public function setBaseUrl($baseUrl);
-
-    /**
      * @param string $url
      * @param array  $headers
      *
