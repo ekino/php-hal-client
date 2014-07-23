@@ -26,9 +26,13 @@ class ProxyObjectConstruction implements ObjectConstructorInterface
     protected $pattern;
 
     /**
+     * http://en.wikipedia.org/wiki/Namespace
+     *   ns: namespace identifier
+     *   ln: localname
+     *
      * @param $pattern
      */
-    public function __construct($pattern = "Proxy\\%s")
+    public function __construct($pattern = "Proxy\\{ns}\\{ln}")
     {
         $this->pattern = $pattern;
     }
@@ -46,7 +50,9 @@ class ProxyObjectConstruction implements ObjectConstructorInterface
      */
     public function construct(VisitorInterface $visitor, ClassMetadata $metadata, $data, array $type, DeserializationContext $context)
     {
-        $name = sprintf($this->pattern, $metadata->name);
+        $pos = strrpos($metadata->name, '\\');
+
+        $name = str_replace(['{ns}', '{ln}'], [substr($metadata->name, 0, $pos), substr($metadata->name, $pos + 1)], $this->pattern);
 
         if (!class_exists($name, false)) {
             $name = $metadata->name;

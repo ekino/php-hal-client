@@ -84,7 +84,7 @@ namespace Ekino\HalClient\Deserialization {
         public function testWithValidProxy()
         {
             $serializerBuilder = Builder::get(false)
-                ->setObjectConstructor($constructor = new ProxyObjectConstruction('Proxy\%s'));
+                ->setObjectConstructor($constructor = new ProxyObjectConstruction());
 
             // todo, inject proxy handler
             $serializerBuilder->setObjectConstructor($constructor);

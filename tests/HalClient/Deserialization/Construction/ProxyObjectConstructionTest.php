@@ -26,7 +26,7 @@ namespace Ekino\HalClient\Deserialization\Construction
             $context = new DeserializationContext();
             $resource = new Resource($client);
 
-            $constructor = new ProxyObjectConstruction('Proxy\%s');
+            $constructor = new ProxyObjectConstruction();
             $object = $constructor->construct($visitor, new ClassMetadata('Acme\Post'), $resource, array(), $context);
 
             $this->assertInstanceOf('Ekino\HalClient\Proxy\HalResourceEntityInterface', $object);
@@ -40,7 +40,7 @@ namespace Ekino\HalClient\Deserialization\Construction
             $context = new DeserializationContext();
             $resource = new Resource($client);
 
-            $constructor = new ProxyObjectConstruction('Proxy\%s');
+            $constructor = new ProxyObjectConstruction();
             $object = $constructor->construct($visitor, new ClassMetadata('Acme\NoProxy'), $resource, array(), $context);
 
             $this->assertNotInstanceOf('Ekino\HalClient\Proxy\HalResourceEntityInterface', $object);
