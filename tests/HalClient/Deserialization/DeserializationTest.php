@@ -24,21 +24,6 @@ namespace Ekino\HalClient\Deserialization {
     class DeserializationTest extends \PHPUnit_Framework_TestCase
     {
         /**
-         * @return SerializerBuilder
-         */
-        public function getSerializerBuilder($autoload = true)
-        {
-            $serializerBuilder = SerializerBuilder::create();
-            $serializerBuilder->setDeserializationVisitor('hal', new ResourceDeserializationVisitor(new CamelCaseNamingStrategy(), $autoload));
-            $serializerBuilder->configureHandlers(function($handlerRegistry) {
-                $handlerRegistry->registerSubscribingHandler(new DateHandler());
-                $handlerRegistry->registerSubscribingHandler(new ArrayCollectionHandler());
-            });
-
-            return $serializerBuilder;
-        }
-
-        /**
          * @return Resource
          */
         public function getResource()
@@ -82,12 +67,9 @@ namespace Ekino\HalClient\Deserialization {
 
         public function testMapping()
         {
-            $serializerBuilder = $this->getSerializerBuilder();
-
             $resource = $this->getResource();
-            $serializer = $serializerBuilder->build();
 
-            $object = $serializer->deserialize($resource, 'Ekino\HalClient\Deserialization\Article', 'hal');
+            $object = Builder::build()->deserialize($resource, 'Ekino\HalClient\Deserialization\Article', 'hal');
 
             $this->assertEquals('Salut', $object->getName());
 
@@ -101,9 +83,8 @@ namespace Ekino\HalClient\Deserialization {
 
         public function testWithValidProxy()
         {
-            $serializerBuilder = $this->getSerializerBuilder(false);
-
-            $constructor = new ProxyObjectConstruction('Proxy\%s');
+            $serializerBuilder = Builder::get(false)
+                ->setObjectConstructor($constructor = new ProxyObjectConstruction('Proxy\%s'));
 
             // todo, inject proxy handler
             $serializerBuilder->setObjectConstructor($constructor);
@@ -148,7 +129,7 @@ namespace Proxy\Ekino\HalClient\Deserialization {
          */
         public function getAuthor()
         {
-            if (!$this->halIsLoaded('author')) {
+            if (!$this->author && !$this->halIsLoaded('author')) {
                 $this->halLoaded('author');
 
                 $resource = $this->getHalResource()->get('author');
