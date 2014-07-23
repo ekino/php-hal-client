@@ -109,7 +109,7 @@ class Resource implements \ArrayAccess
     /**
      * @param $name
      *
-     * @return Link
+     * @return Curie
      */
     public function getCurie($name)
     {
@@ -137,7 +137,7 @@ class Resource implements \ArrayAccess
         }
 
         foreach ($this->links['curies'] as $curie) {
-            $this->curies[$curie['name']] = new Link($this, $curie);
+            $this->curies[$curie['name']] = new Curie($this, $curie);
         }
     }
 

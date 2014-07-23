@@ -11,34 +11,27 @@
 
 namespace Ekino\HalClient;
 
-use Guzzle\Parser\UriTemplate\UriTemplate;
-
-class Link
+class Link extends AbstractLink
 {
     /**
-     * @var Resource
+     * Prefix curie if the name is a curie.
+     * Relation to curie name.
+     *
+     * @var null|string
+     *
+     * @see http://www.w3.org/TR/curie/#s_syntax
      */
-    protected $resource;
+    protected $ncName;
 
     /**
-     * @var null|array
+     * @var null|string
      */
-    protected $name;
+    protected $reference;
 
     /**
      * @var null|string
      */
     protected $title;
-
-    /**
-     * @var null|string
-     */
-    protected $href;
-
-    /**
-     * @var null|bool
-     */
-    protected $templated = false;
 
     /**
      * Constructor.
@@ -48,94 +41,60 @@ class Link
      */
     public function __construct(Resource $resource, array $data)
     {
-        $this->resource = $resource;
+        parent::__construct($resource, $data);
 
-        $this->title     = isset($data['title'])     ? $data['title'] : null;
-        $this->href      = isset($data['href'])      ? $data['href'] : null;
-        $this->templated = isset($data['templated']) ? (boolean) $data['templated'] : false;
+        $this->title = isset($data['title']) ? $data['title'] : null;
 
-        if (isset($data['name'])) {
-            if (false !== strpos($data['name'], ':')) {
-                $this->name = explode(':', $data['name'], 2);
-            } else {
-                $this->name = $data['name'];
-            }
+        if (null !== $this->name && false !== strpos($this->name, ':')) {
+            list($this->ncName, $this->reference) = explode(':', $this->name, 2);
         }
     }
 
     /**
-     * Send a request.
+     * Send a request to href.
      *
      * @param array $variables Required if the link is templated
      *
-     * @return HttpClient\HttpResponse
+     * @return Resource
      *
      * @throws \RuntimeException         When call with property "href" empty
      * @throws \InvalidArgumentException When variables is required and is empty
      */
     public function get(array $variables = array())
     {
-        if (null === $this->href) {
-            throw new \RuntimeException('Href must to be sets.');
-        }
+        $entryPoint = new EntryPoint($this->prepareUrl($variables), $this->resource->getClient());
 
-        if (!$this->templated) {
-            return $this->resource->getClient()->get($this->href);
-        }
-
-        if (empty($variables)) {
-            throw new \InvalidArgumentException('You forgot the variables.');
-        }
-
-        $template = new UriTemplate();
-
-        return $this->resource->getClient()->get($template->expand($this->href, $variables));
+        return $entryPoint->get();
     }
 
     /**
-     * Returns the href docs.
+     * Returns the URL docs.
      *
      * @return null|string
      */
     public function getDocs()
     {
-        if (!is_array($this->name)) {
+        if (null === $this->ncName || null === $this->resource->getCurie($this->ncName)) {
             return null;
         }
 
-        $curie = $this->resource->getCurie($this->name[0]);
-
-        if (null === $curie) {
-            return null;
-        }
-
-        if (!$curie->isTemplated()) {
-            return $curie->getHref();
-        }
-
-        $template = new UriTemplate();
-
-        return $template->expand($curie->getHref(), array('rel' => $this->name[1]));
+        return $this->resource->getCurie($this->ncName)->prepareUrl(array('rel' => $this->reference));
     }
 
     /**
      * @return null|string
      */
-    public function getName()
+    public function getNCName()
     {
-        if (is_array($this->name)) {
-            return sprintf('%s:%s', $this->name[0], $this->name[1]);
-        }
-
-        return $this->name;
+        return $this->ncName;
     }
 
     /**
      * @return null|string
      */
-    public function getHref()
+    public function getReference()
     {
-        return $this->href;
+        return $this->reference;
     }
 
     /**
@@ -144,13 +103,5 @@ class Link
     public function getTitle()
     {
         return $this->title;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTemplated()
-    {
-        return $this->templated;
     }
 }
