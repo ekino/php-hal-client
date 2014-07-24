@@ -51,7 +51,7 @@ class EntryPoint
      */
     public static function parse(HttpResponse $response, HttpClientInterface $client)
     {
-        if ($response->getHeader('Content-Type') !== 'application/hal+json') {
+        if (substr($response->getHeader('Content-Type'), 0, 20) !== 'application/hal+json') {
             throw new \RuntimeException('Invalid content type');
         }
 

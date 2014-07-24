@@ -32,6 +32,18 @@ class EntryPointTest extends \PHPUnit_Framework_TestCase
         $entryPoint->get();
     }
 
+    public function testVersionHeader()
+    {
+        $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
+        $client->expects($this->once())->method('get')->will($this->returnCallback(function($url) {
+            return new HttpResponse(200, array(
+                'Content-Type' => 'application/hal+json;version=42'
+            ), json_encode([]));
+        }));
+
+        (new EntryPoint('/', $client))->get();
+    }
+
     public function testGetResource()
     {
         $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
