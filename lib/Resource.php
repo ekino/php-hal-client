@@ -146,7 +146,7 @@ class Resource implements \ArrayAccess
      */
     public function has($name)
     {
-        return $this->hasProperty($name) || $this->hasLink($name);
+        return $this->hasProperty($name) || $this->hasLink($name) || $this->hasEmbedded($name);
     }
 
     /**
