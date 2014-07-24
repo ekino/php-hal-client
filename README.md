@@ -19,6 +19,10 @@ If asked for a version, type in 'dev-master' (unless you want another version):
 Please provide a version constraint for the ekino/hal-client requirement: dev-master
 ```
 
+### Limitations
+
+There is no support for POST/PUT/PATCH/DELETE methods.
+
 ### Usage
 
 ```php
