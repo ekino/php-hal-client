@@ -43,6 +43,14 @@ class Resource implements \ArrayAccess
     }
 
     /**
+     * @return HttpClientInterface
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
      * @return array
      */
     public function getEmbedded()
@@ -92,10 +100,24 @@ class Resource implements \ArrayAccess
         }
 
         if (!$this->links[$name] instanceof Link) {
-            $this->links[$name] = new Link($this->links[$name]);
+            $this->links[$name] = new Link(array_merge(array('name' => $name), $this->links[$name]));
         }
 
         return $this->links[$name];
+    }
+
+    /**
+     * @param $name
+     *
+     * @return Curie
+     */
+    public function getCurie($name)
+    {
+        if (!array_key_exists($name, $this->curies)) {
+            return null;
+        }
+
+        return $this->curies[$name];
     }
 
     /**
@@ -115,7 +137,7 @@ class Resource implements \ArrayAccess
         }
 
         foreach ($this->links['curies'] as $curie) {
-            $this->curies[$curie['name']] = $curie;
+            $this->curies[$curie['name']] = new Curie($curie);
         }
     }
 
@@ -235,14 +257,19 @@ class Resource implements \ArrayAccess
     }
 
     /**
-     * @param Link $link
+     * Create a resource from link href.
+     *
+     * @param Link  $link
+     * @param array $variables Required if the link is templated
      *
      * @return Resource
-     * @throws \RuntimeException
+     *
+     * @throws \RuntimeException When call with property "href" of Link is empty and sets variables
+     *                           Or response server is invalid
      */
-    private function getResource(Link $link)
+    public function getResource(Link $link, array $variables = array())
     {
-        $response = $this->client->get($link->getHref());
+        $response = $this->client->get($link->getHref($variables));
 
         if (!$response instanceof HttpResponse) {
             throw new \RuntimeException(sprintf('HttpClient does not return a valid HttpResponse object, given: %s', $response));
@@ -253,6 +280,22 @@ class Resource implements \ArrayAccess
         }
 
         return EntryPoint::parse($response, $this->client);
+    }
+
+    /**
+     * Returns the href of curie assoc given by link.
+     *
+     * @param Link $link
+     *
+     * @return string
+     */
+    public function getCurieHref(Link $link)
+    {
+        if (null === $link->getNCName() || null === $this->getCurie($link->getNCName())) {
+            return null;
+        }
+
+        return $this->getCurie($link->getNCName())->getHref(array('rel' => $link->getReference()));
     }
 
     /**
