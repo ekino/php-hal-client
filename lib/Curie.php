@@ -13,23 +13,4 @@ namespace Ekino\HalClient;
 
 class Curie extends AbstractLink
 {
-    /**
-     * Send a request.
-     *
-     * @param null|string $rel
-     *
-     * @return Resource
-     *
-     * @throws \InvalidArgumentException When the variable rel is necessary
-     */
-    public function get($rel = null)
-    {
-        if ($this->templated && null === $rel) {
-            throw new \InvalidArgumentException('You forgot the rel.');
-        }
-
-        $entryPoint = new EntryPoint($this->prepareUrl(array('rel' => $rel)), $this->resource->getClient());
-
-        return $entryPoint->get();
-    }
 }

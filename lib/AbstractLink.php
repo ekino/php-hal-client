@@ -16,11 +16,6 @@ use Guzzle\Parser\UriTemplate\UriTemplate;
 abstract class AbstractLink
 {
     /**
-     * @var Resource
-     */
-    protected $resource;
-
-    /**
      * @var string
      *
      * @see http://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
@@ -42,10 +37,8 @@ abstract class AbstractLink
      *
      * @param array $data
      */
-    public function __construct(Resource $resource, array $data)
+    public function __construct(array $data)
     {
-        $this->resource = $resource;
-
         $this->name      = isset($data['name'])      ? $data['name'] : null;
         $this->href      = isset($data['href'])      ? $data['href'] : null;
         $this->templated = isset($data['templated']) ? (boolean) $data['templated'] : false;
@@ -60,10 +53,20 @@ abstract class AbstractLink
     }
 
     /**
+     * Returns the href.
+     *
+     * @param array $variables Required if the link is templated
+     *
      * @return null|string
+     *
+     * @throws \RuntimeException When call with property "href" empty and sets variables
      */
-    public function getHref()
+    public function getHref(array $variables = array())
     {
+        if (!empty($variables)) {
+            return $this->prepareUrl($variables);
+        }
+
         return $this->href;
     }
 
@@ -82,10 +85,9 @@ abstract class AbstractLink
      *
      * @return string
      *
-     * @throws \RuntimeException         When call with property "href" empty
-     * @throws \InvalidArgumentException When variables is required and is empty
+     * @throws \RuntimeException When call with property "href" empty
      */
-    public function prepareUrl(array $variables = array())
+    private function prepareUrl(array $variables = array())
     {
         if (null === $this->href) {
             throw new \RuntimeException('Href must to be sets.');
@@ -93,10 +95,6 @@ abstract class AbstractLink
 
         if (!$this->templated) {
             return $this->href;
-        }
-
-        if (empty($variables)) {
-            throw new \InvalidArgumentException('You forgot the variables.');
         }
 
         $template = new UriTemplate();

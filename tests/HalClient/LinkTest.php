@@ -13,7 +13,14 @@ namespace Ekino\HalClient;
 
 class LinkTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \Ekino\HalClient\HttpClient\HttpClientInterface
+     */
     protected $client;
+
+    /**
+     * @var \Ekino\HalClient\Resource
+     */
     protected $resource;
 
     public function testGetCurieName()
@@ -45,42 +52,32 @@ class LinkTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test', $this->resource->getCurie('test')->getName());
         $this->assertEquals('http://localhost/path/to/docs/{rel}', $this->resource->getCurie('test')->getHref());
         $this->assertTrue($this->resource->getCurie('test')->isTemplated());
-
-        $this->assertEquals('http://localhost/path/to/docs/foo', $this->resource->getCurie('test')->prepareUrl(array('rel' => 'foo')));
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testGetCurieGetFail()
-    {
-        $this->resource->getCurie('test')->get();
     }
 
     public function testGetDocs()
     {
-        $this->assertEquals('http://localhost/path/to/docs/media', $this->resource->getLink('test:media')->getDocs());
+        $this->assertEquals('http://localhost/path/to/docs/media', $this->resource->getCurieHref($this->resource->getLink('test:media')));
 
-        $this->assertNull($this->resource->getLink('article')->getDocs());
+        $this->assertNull($this->resource->getCurieHref($this->resource->getLink('article')));
 
-        $this->assertNull($this->resource->getLink('bar:tag')->getDocs());
+        $this->assertNull($this->resource->getCurieHref($this->resource->getLink('bar:tag')));
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \RuntimeException
      */
     public function testLinkGetFail()
     {
-        $this->assertNull($this->resource->getLink('article')->get());
+        $this->resource->getResource($this->resource->getLink('article'));
     }
 
-    public function testLinkPrepareUrl()
+    public function testLinkHref()
     {
-        $this->assertEquals('http://localhost/article/42', $this->resource->getLink('article')->prepareUrl(array('id' => 42)));
+        $this->assertEquals('http://localhost/article/42', $this->resource->getLink('article')->getHref(array('id' => 42)));
 
-        $this->assertEquals('http://localhost/tag/{id}', $this->resource->getLink('bar:tag')->prepareUrl(array('id' => 42)));
+        $this->assertEquals('http://localhost/tag/{id}', $this->resource->getLink('bar:tag')->getHref(array('id' => 42)));
 
-        $this->assertEquals('http://localhost/media', $this->resource->getLink('test:media')->prepareUrl());
+        $this->assertEquals('http://localhost/media', $this->resource->getLink('test:media')->getHref());
     }
 
     protected function setUp()
