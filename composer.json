@@ -12,7 +12,8 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "guzzle/parser": "~3.9"
     },
     "require-dev": {
         "jms/serializer": "~0.16"

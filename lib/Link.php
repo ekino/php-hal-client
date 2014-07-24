@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 * This file is part of the Ekino HalClient package.
 *
@@ -12,31 +11,62 @@
 
 namespace Ekino\HalClient;
 
-class Link
+class Link extends AbstractLink
 {
-    protected $title;
-
-    protected $href;
+    /**
+     * Prefix curie if the name is a curie.
+     * Relation to curie name.
+     *
+     * @var null|string
+     *
+     * @see http://www.w3.org/TR/curie/#s_syntax
+     */
+    protected $ncName;
 
     /**
-     * @param $data
+     * @var null|string
+     */
+    protected $reference;
+
+    /**
+     * @var null|string
+     */
+    protected $title;
+
+    /**
+     * Constructor.
+     *
+     * @param array $data
      */
     public function __construct(array $data)
     {
+        parent::__construct($data);
+
         $this->title = isset($data['title']) ? $data['title'] : null;
-        $this->href  = isset($data['href']) ? $data['href'] : null;
+
+        if (null !== $this->name && false !== strpos($this->name, ':')) {
+            list($this->ncName, $this->reference) = explode(':', $this->name, 2);
+        }
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getHref()
+    public function getNCName()
     {
-        return $this->href;
+        return $this->ncName;
     }
 
     /**
-     * @return string
+     * @return null|string
+     */
+    public function getReference()
+    {
+        return $this->reference;
+    }
+
+    /**
+     * @return null|string
      */
     public function getTitle()
     {
