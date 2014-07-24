@@ -61,6 +61,8 @@ class EntryPoint
     }
 
     /**
+     * @param string $name
+     *
      * @return Resource
      */
     public function get($name = null)
