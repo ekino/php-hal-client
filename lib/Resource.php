@@ -43,14 +43,6 @@ class Resource implements \ArrayAccess
     }
 
     /**
-     * @return HttpClientInterface
-     */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
      * @return array
      */
     public function getEmbedded()
