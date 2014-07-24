@@ -28,7 +28,7 @@ namespace Ekino\HalClient\Deserialization {
          */
         public function getResource()
         {
-            $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
+             $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
              $client->expects($this->exactly(1))->method('get')->will($this->returnCallback(function($url) {
                  if ($url == '/users/1') {
                      return new HttpResponse(200, array(

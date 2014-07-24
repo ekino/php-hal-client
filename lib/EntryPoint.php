@@ -22,6 +22,9 @@ class EntryPoint
 
     protected $client;
 
+    /**
+     * @var Resource
+     */
     protected $resource;
 
     /**
@@ -60,9 +63,13 @@ class EntryPoint
     /**
      * @return Resource
      */
-    public function get()
+    public function get($name = null)
     {
         $this->initialize();
+
+        if ($name) {
+            return $this->resource->get($name);
+        }
 
         return $this->resource;
     }

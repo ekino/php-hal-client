@@ -54,7 +54,7 @@ class ProxyObjectConstruction implements ObjectConstructorInterface
 
         $name = str_replace(['{ns}', '{ln}'], [substr($metadata->name, 0, $pos), substr($metadata->name, $pos + 1)], $this->pattern);
 
-        if (!class_exists($name, false)) {
+        if (!class_exists($name, true)) {
             $name = $metadata->name;
         }
 
