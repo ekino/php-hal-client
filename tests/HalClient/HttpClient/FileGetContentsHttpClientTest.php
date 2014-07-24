@@ -17,7 +17,7 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testGet()
     {
-        $client = new FileGetContentsHttpClient('http://www.ekino.com');
+        $client = new FileGetContentsHttpClient('http://www.ekino.com', array(), 5.0);
 
         $response = $client->get('/');
 
