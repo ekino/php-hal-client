@@ -55,7 +55,11 @@ class EntryPoint
             throw new \RuntimeException('Invalid content type');
         }
 
-        $data = json_decode($response->getBody(), true);
+        $data = @json_decode($response->getBody(), true);
+
+        if ($data === null) {
+            throw new \RuntimeException('Invalid JSON format');
+        }
 
         return Resource::create($client, $data);
     }

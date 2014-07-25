@@ -26,7 +26,7 @@ class HttpResponse
      */
     public function __construct($status, array $headers = array(), $body = '')
     {
-        $this->status  = $status;
+        $this->status  = (int) $status;
         $this->headers = $headers;
         $this->body    = $body;
     }
