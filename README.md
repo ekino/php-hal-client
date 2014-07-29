@@ -62,6 +62,6 @@ The library support deserialization of Resource object into native PHP object.
 
 $serializer = Ekino\HalClient\Deserialization\Builder::build();
 
-$object = $serializer->deserialize($resource, 'Ekino\HalClient\Article', 'hal');
+$object = $serializer->deserialize($resource, 'Acme\Article', 'hal');
 
 ```
