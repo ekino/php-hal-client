@@ -15,9 +15,11 @@ use Ekino\HalClient\HttpClient\HttpClientInterface;
 
 class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
 {
-    protected $collection;
+    protected $iterator;
 
     protected $client;
+
+    protected $updateIterator = true;
 
     /**
      * @param HttpClientInterface $client
@@ -26,14 +28,37 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
     public function __construct(HttpClientInterface $client, array $collection = array())
     {
         $this->client     = $client;
+        $this->iterator   = new \ArrayIterator($collection);
+    }
 
-        foreach ($collection as $pos => $data) {
-            $collection[$pos] = Resource::create($client, $data);
+    /**
+     * @param HttpClientInterface $client
+     * @param \Iterator $collection
+     * @param bool $updateIterator if the Iterator should be updated to wrap the data inside Resource instances
+     *
+     * @return ResourceCollection
+     */
+    public static function createFromIterator(HttpClientInterface $client, \Iterator $collection, $updateIterator = false)
+    {
+        $col = new self($client);
+        $col->iterator = $collection;
+        $col->updateIterator = $updateIterator;
+
+        return $col;
+    }
+
+    /**
+     * @param null|array $data
+     *
+     * @return Resource
+     */
+    protected function createResource($data)
+    {
+        if (null === $data) {
+            return null;
         }
 
-        $this->collection = $collection;
-
-        $this->iterator = new \ArrayIterator($this->collection);
+        return Resource::create($this->client, $data);
     }
 
     /**
@@ -41,7 +66,17 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function current()
     {
-        return $this->iterator->current();
+        $resource = $this->iterator->current();
+        if (null === $resource) {
+            return null;
+        }
+
+        if ($this->updateIterator && !$resource instanceof Resource) {
+            $resource = $this->createResource($resource);
+            $this->iterator->offsetSet($this->iterator->key(), $resource);
+        }
+
+        return $resource;
     }
 
     /**
@@ -81,7 +116,11 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function count()
     {
-        return count($this->collection);
+        if (!$this->iterator instanceof \Countable) {
+            throw new \RuntimeException('Operation not allowed');
+        }
+
+        return count($this->iterator);
     }
 
     /**
@@ -89,7 +128,11 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return isset($this->collection[$offset]);
+        if (!$this->iterator instanceof \ArrayAccess) {
+            throw new \RuntimeException('Operation not allowed');
+        }
+
+        return isset($this->iterator[$offset]);
     }
 
     /**
@@ -97,7 +140,21 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return $this->collection[$offset];
+        if (!$this->iterator instanceof \ArrayAccess) {
+            throw new \RuntimeException('Operation not allowed');
+        }
+
+        $resource = $this->iterator->offsetGet($offset);
+        if (null === $resource) {
+            return null;
+        }
+
+        if ($this->updateIterator && !$resource instanceof Resource) {
+            $resource = $this->createResource($resource);
+            $this->iterator->offsetSet($offset, $resource);
+        }
+
+        return $resource;
     }
 
     /**
