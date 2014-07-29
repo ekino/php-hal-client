@@ -1,7 +1,7 @@
 HalClient
 =========
 
-[![Build Status](https://secure.travis-ci.org/ekino/hal-client.png)](https://secure.travis-ci.org/#!/ekino/hal-client)
+[![Build Status](https://secure.travis-ci.org/ekino/php-hal-client.png)](https://secure.travis-ci.org/#!/ekino/php-hal-client)
 
 HalClient is a lightweight library to consume HAL resources.
 
