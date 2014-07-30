@@ -15,7 +15,7 @@ use Ekino\HalClient\HttpClient\HttpClientInterface;
 
 class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
 {
-    protected $collection;
+    protected $iterator;
 
     protected $client;
 
@@ -25,15 +25,12 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function __construct(HttpClientInterface $client, array $collection = array())
     {
-        $this->client     = $client;
-
         foreach ($collection as $pos => $data) {
             $collection[$pos] = Resource::create($client, $data);
         }
 
-        $this->collection = $collection;
-
-        $this->iterator = new \ArrayIterator($this->collection);
+        $this->client     = $client;
+        $this->iterator   = new \ArrayIterator($collection);
     }
 
     /**
@@ -81,7 +78,7 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function count()
     {
-        return count($this->collection);
+        return $this->iterator->count();
     }
 
     /**
@@ -89,7 +86,7 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return isset($this->collection[$offset]);
+        return $this->iterator->offsetExists($offset);
     }
 
     /**
@@ -97,7 +94,7 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return $this->collection[$offset];
+        return $this->iterator->offsetGet($offset);
     }
 
     /**
