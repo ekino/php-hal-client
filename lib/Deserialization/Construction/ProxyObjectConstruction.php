@@ -58,6 +58,8 @@ class ProxyObjectConstruction implements ObjectConstructorInterface
 
             if (class_exists($name, true)) {
                 $instance = unserialize(sprintf('O:%d:"%s":0:{}', strlen($name), $name));
+
+                break;
             }
         }
 
