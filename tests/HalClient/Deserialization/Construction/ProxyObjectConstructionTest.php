@@ -31,6 +31,7 @@ namespace Ekino\HalClient\Deserialization\Construction
 
             $this->assertInstanceOf('Ekino\HalClient\Proxy\HalResourceEntityInterface', $object);
             $this->assertInstanceOf('Ekino\HalClient\Resource', $object->getHalResource());
+            $this->assertInstanceOf('Acme\Post', $object);
         }
 
         public function testConstructorWithoutProxy()
@@ -45,6 +46,21 @@ namespace Ekino\HalClient\Deserialization\Construction
 
             $this->assertNotInstanceOf('Ekino\HalClient\Proxy\HalResourceEntityInterface', $object);
             $this->assertInstanceOf('Acme\NoProxy', $object);
+        }
+
+        public function testWithMultiplePatterns()
+        {
+            $visitor = $this->getMock('JMS\Serializer\VisitorInterface');
+            $client = $this->getMock('Ekino\HalClient\HttpClient\HttpClientInterface');
+            $context = new DeserializationContext();
+            $resource = new Resource($client);
+
+            $constructor = new ProxyObjectConstruction(["{ns}\\Proxy\\{ln}", "Proxy\\{ns}\\{ln}"]);
+            $object = $constructor->construct($visitor, new ClassMetadata('Acme\Post'), $resource, array(), $context);
+
+            $this->assertInstanceOf('Ekino\HalClient\Proxy\HalResourceEntityInterface', $object);
+            $this->assertInstanceOf('Ekino\HalClient\Resource', $object->getHalResource());
+            $this->assertInstanceOf('Proxy\Acme\Post', $object);
         }
     }
 }

@@ -9,7 +9,7 @@
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./tests/HalClient/</directory>
+            <directory suffix=".php">./</directory>
         </whitelist>
     </filter>
 </phpunit>

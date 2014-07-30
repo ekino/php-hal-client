@@ -30,11 +30,11 @@ class ProxyObjectConstruction implements ObjectConstructorInterface
      *   ns: namespace identifier
      *   ln: localname
      *
-     * @param $pattern
+     * @param array $patterns
      */
-    public function __construct($pattern = "Proxy\\{ns}\\{ln}")
+    public function __construct($patterns = ["Proxy\\{ns}\\{ln}"])
     {
-        $this->pattern = $pattern;
+        $this->patterns = $patterns;
     }
 
     /**
@@ -52,13 +52,18 @@ class ProxyObjectConstruction implements ObjectConstructorInterface
     {
         $pos = strrpos($metadata->name, '\\');
 
-        $name = str_replace(['{ns}', '{ln}'], [substr($metadata->name, 0, $pos), substr($metadata->name, $pos + 1)], $this->pattern);
+        $instance = false;
+        foreach ($this->patterns as $pattern) {
+            $name = str_replace(['{ns}', '{ln}'], [substr($metadata->name, 0, $pos), substr($metadata->name, $pos + 1)], $pattern);
 
-        if (!class_exists($name, true)) {
-            $name = $metadata->name;
+            if (class_exists($name, true)) {
+                $instance = unserialize(sprintf('O:%d:"%s":0:{}', strlen($name), $name));
+            }
         }
 
-        $instance = unserialize(sprintf('O:%d:"%s":0:{}', strlen($name), $name));
+        if (!$instance) {
+            $instance = unserialize(sprintf('O:%d:"%s":0:{}', strlen($metadata->name), $metadata->name));
+        }
 
         if ($instance instanceof HalResourceEntityInterface && $data instanceof Resource) {
             $instance->setHalResource($data);
