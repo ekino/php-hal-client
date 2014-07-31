@@ -13,7 +13,7 @@ namespace Ekino\HalClient;
 
 use Ekino\HalClient\HttpClient\HttpClientInterface;
 
-class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
+class ResourceCollection implements \IteratorAggregate, \Countable, \ArrayAccess
 {
     protected $collection;
 
@@ -39,49 +39,17 @@ class ResourceCollection implements \Iterator, \Countable, \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function current()
-    {
-        return $this->iterator->current();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function next()
-    {
-        $this->iterator->next();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function key()
-    {
-        return $this->iterator->key();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function valid()
-    {
-        return $this->iterator->valid();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function rewind()
-    {
-        $this->iterator->rewind();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function count()
     {
         return count($this->collection);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        return $this->iterator;
     }
 
     /**
