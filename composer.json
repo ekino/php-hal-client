@@ -2,7 +2,7 @@
     "name": "ekino/hal-client",
     "description": "HalClient",
     "keywords": ["hal", "Hypermedia"],
-    "homepage": "https://github.com/ekino/HalClient",
+    "homepage": "https://github.com/ekino/php-hal-client,
     "type": "library",
     "license": "MIT",
     "authors": [
