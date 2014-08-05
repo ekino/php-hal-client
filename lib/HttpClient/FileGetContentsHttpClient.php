@@ -11,6 +11,8 @@
 
 namespace Ekino\HalClient\HttpClient;
 
+use Ekino\HalClient\Exception\RequestException;
+
 class FileGetContentsHttpClient implements HttpClientInterface
 {
     /**
@@ -31,14 +33,16 @@ class FileGetContentsHttpClient implements HttpClientInterface
     /**
      * Constructor.
      *
-     * @param string $baseUrl
-     * @param array  $defaultHeaders
-     * @param float  $timeout
+     * @param string      $baseUrl
+     * @param array       $defaultHeaders
+     * @param float       $timeout
+     * @param string|bool $proxy
      */
-    public function __construct($baseUrl, array $defaultHeaders = array(), $timeout = 1.0)
+    public function __construct($baseUrl, array $defaultHeaders = array(), $timeout = 1.0, $proxy = false)
     {
         $this->defaultHeaders = $defaultHeaders;
-        $this->timeout = $timeout;
+        $this->timeout        = $timeout;
+        $this->proxy          = $proxy;
 
         // normalize
         if (substr($baseUrl, -1) !== '/') {
@@ -56,7 +60,7 @@ class FileGetContentsHttpClient implements HttpClientInterface
      *
      * @return HttpResponse
      *
-     * @throws \RuntimeException
+     * @throws RequestException
      */
     protected function doRequest($url, $method, array $headers, array $data)
     {
@@ -64,9 +68,10 @@ class FileGetContentsHttpClient implements HttpClientInterface
 
         $opts = array(
             'http' => array(
-                'method'  => strtoupper($method),
-                'header'  => $this->buildHeaders(array_merge($this->defaultHeaders, $headers)),
-                'timeout' => $this->timeout,
+                'method'          => strtoupper($method),
+                'header'          => $this->buildHeaders(array_merge($this->defaultHeaders, $headers)),
+                'timeout'         => $this->timeout,
+                'ignore_errors'   => true,
 
                 // need to set configuration options
                 'user_agent'      => 'Ekino HalClient v0.1',
@@ -74,6 +79,10 @@ class FileGetContentsHttpClient implements HttpClientInterface
                 'max_redirects'   => 20,
             )
         );
+
+        if ($this->proxy) {
+            $opts['http']['proxy'] = $this->proxy;
+        }
 
         // if is relative url
         if ('http' !== substr($url, 0, 4)) {
@@ -86,10 +95,10 @@ class FileGetContentsHttpClient implements HttpClientInterface
         }
 
         // http://php.net/manual/en/reserved.variables.httpresponseheader.php
-        $content = file_get_contents($url, false, stream_context_create($opts));
+        $content = @file_get_contents($url, false, stream_context_create($opts));
 
-        if (empty($http_response_header)) {
-            throw new \RuntimeException('Empty response, no headers');
+        if (empty($http_response_header) && $content === false) {
+            throw new RequestException('Empty response, no headers or impossible to reach the remote server');
         }
 
         $data = explode(" ", $http_response_header[0]);

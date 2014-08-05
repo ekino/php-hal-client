@@ -11,6 +11,8 @@
 
 namespace Ekino\HalClient\HttpClient;
 
+use Ekino\HalClient\Exception\RequestException;
+
 interface HttpClientInterface
 {
     /**
@@ -18,6 +20,8 @@ interface HttpClientInterface
      * @param array  $headers
      *
      * @return HttpResponse
+     *
+     * @throws RequestException
      */
     public function get($url, $headers = array());
 
@@ -27,6 +31,8 @@ interface HttpClientInterface
      * @param array  $headers
      *
      * @return HttpResponse
+     *
+     * @throws RequestException
      */
     public function post($url, $data = array(), $headers = array());
 
@@ -36,6 +42,8 @@ interface HttpClientInterface
      * @param array  $headers
      *
      * @return HttpResponse
+     *
+     * @throws RequestException
      */
     public function put($url, $data = array(), $headers = array());
 
@@ -44,6 +52,8 @@ interface HttpClientInterface
      * @param array  $headers
      *
      * @return HttpResponse
+     *
+     * @throws RequestException
      */
     public function delete($url, $headers = array());
 
@@ -53,6 +63,8 @@ interface HttpClientInterface
      * @param array  $headers
      *
      * @return HttpResponse
+     *
+     * @throws RequestException
      */
     public function patch($url, $data = array(), $headers = array());
 }

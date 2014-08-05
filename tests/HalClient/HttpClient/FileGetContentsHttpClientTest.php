@@ -28,4 +28,26 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertContains('ekino', $response->getBody());
     }
+
+    public function testGet404()
+    {
+        $client = new FileGetContentsHttpClient('http://www.ekino.com/this-is-an-invalid-url', array(), 5.0);
+
+        $response = $client->get('/');
+
+        $this->assertEquals($response->getStatus(), 404);
+    }
+
+    /**
+     * @expectedException \Ekino\HalClient\Exception\RequestException
+     * @expectedExceptionMessage Empty response, no headers or impossible to reach the remote server
+     */
+    public function testGetUnreachable()
+    {
+        $client = new FileGetContentsHttpClient('https://8.8.8.8/', array(), 2.0); // Google DNS ;)
+
+        $response = $client->get('/');
+
+        $this->assertEquals($response->getStatus(), 404);
+    }
 }
