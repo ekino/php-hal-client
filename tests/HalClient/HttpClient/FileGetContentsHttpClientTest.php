@@ -28,4 +28,15 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 
         $this->assertContains('ekino', $response->getBody());
     }
+
+    /**
+     * @expectedException \Ekino\HalClient\HttpClient\RequestFailedException
+     * @expectedExceptionMessage Couldn't reach `http://www.ekino.com/invalidUri/`; maybe something is wrong with the host?
+     */
+    public function testGetUnreachable()
+    {
+        $client = new FileGetContentsHttpClient('http://www.ekino.com/invalidUri', array(), 5.0);
+
+        $client->get('/');
+    }
 }

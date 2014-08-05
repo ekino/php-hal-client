@@ -57,6 +57,7 @@ class FileGetContentsHttpClient implements HttpClientInterface
      * @return HttpResponse
      *
      * @throws \RuntimeException
+     * @throws RequestFailedException
      */
     protected function doRequest($url, $method, array $headers, array $data)
     {
@@ -86,7 +87,11 @@ class FileGetContentsHttpClient implements HttpClientInterface
         }
 
         // http://php.net/manual/en/reserved.variables.httpresponseheader.php
-        $content = file_get_contents($url, false, stream_context_create($opts));
+        $content = @file_get_contents($url, false, stream_context_create($opts));
+
+        if (false === $content) {
+            throw new RequestFailedException(sprintf("Couldn't reach `%s`; maybe something is wrong with the host?", $url));
+        }
 
         if (empty($http_response_header)) {
             throw new \RuntimeException('Empty response, no headers');
