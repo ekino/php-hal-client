@@ -17,7 +17,7 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testGet()
     {
-        $client = new FileGetContentsHttpClient('http://www.ekino.com', array(), 5.0);
+        $client = new FileGetContentsHttpClient('http://www.google.com', array(), 5.0);
 
         $response = $client->get('/');
 
@@ -31,7 +31,7 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 
     public function testGet404()
     {
-        $client = new FileGetContentsHttpClient('http://www.ekino.com/this-is-an-invalid-url', array(), 5.0);
+        $client = new FileGetContentsHttpClient('http://www.google.com/this-is-an-invalid-url', array(), 5.0);
 
         $response = $client->get('/');
 
