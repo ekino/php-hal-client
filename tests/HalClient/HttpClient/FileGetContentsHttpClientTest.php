@@ -17,7 +17,7 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testGet()
     {
-        $client = new FileGetContentsHttpClient('http://www.google.com', array(), 5.0);
+        $client = new FileGetContentsHttpClient('http://example.org/', array(), 5.0);
 
         $response = $client->get('/');
 
@@ -26,7 +26,7 @@ class FileGetContentsHttpClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(200, $response->getStatus());
         $this->assertNotNull($response->getHeader('Content-Type'));
 
-        $this->assertContains('ekino', $response->getBody());
+        $this->assertContains('Example Domain', $response->getBody());
     }
 
     public function testGet404()
