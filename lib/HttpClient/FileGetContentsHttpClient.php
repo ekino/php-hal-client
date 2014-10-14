@@ -82,6 +82,7 @@ class FileGetContentsHttpClient implements HttpClientInterface
 
         if ($this->proxy) {
             $opts['http']['proxy'] = $this->proxy;
+            $opts['http']['request_fulluri'] = true;
         }
 
         // if is relative url
