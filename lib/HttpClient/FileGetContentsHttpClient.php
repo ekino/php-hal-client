@@ -38,7 +38,7 @@ class FileGetContentsHttpClient implements HttpClientInterface
      * @param float       $timeout
      * @param string|bool $proxy
      */
-    public function __construct($baseUrl, array $defaultHeaders = array(), $timeout = 1.0, $proxy = false)
+    public function __construct($baseUrl, array $defaultHeaders = array(), $timeout = 5.0, $proxy = false)
     {
         $this->defaultHeaders = $defaultHeaders;
         $this->timeout        = $timeout;
