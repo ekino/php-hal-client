@@ -23,6 +23,11 @@ class EntryPoint
     protected $client;
 
     /**
+     * @var string Default content type
+     */
+    protected static $content_type = 'application/hal+json';
+
+    /**
      * @var Resource
      */
     protected $resource;
@@ -51,7 +56,7 @@ class EntryPoint
      */
     public static function parse(HttpResponse $response, HttpClientInterface $client)
     {
-        if (substr($response->getHeader('Content-Type'), 0, 20) !== 'application/hal+json') {
+        if (substr($response->getHeader('Content-Type'), 0, 20) !== self::$content_type ) {
             throw new \RuntimeException('Invalid content type');
         }
 
@@ -90,5 +95,21 @@ class EntryPoint
         }
 
         $this->resource = static::parse($this->client->get($this->url), $this->client);
+    }
+
+    /**
+     * Set the default content type to check in parse method
+     *
+     * @param $content_type
+     * @return bool
+     * @todo Check if string is a valid content type
+     */
+    public static function setDefaultContentType ($content_type)
+    {
+        if ($content_type){
+            self::$content_type = $content_type;
+            return true;
+        }
+        return false;
     }
 }
